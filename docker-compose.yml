@@ -1,0 +1,57 @@
+version: '3.4'
+services:
+
+  test:
+    build:
+      context: .
+      target: test
+    depends_on:
+      - localstack
+      - emptydb
+      - pennsievedb
+    environment:
+      ENVIRONMENT: local
+      SERVICE_NAME: discover
+      TIER: pgdump
+      AWS_ACCESS_KEY_ID: xxxx
+      AWS_SECRET_ACCESS_KEY: yyyy
+      AWS_DEFAULT_REGION: 'us-east-1'
+
+  pennsievedb:
+    hostname: pennsievedb
+    image: pennsieve/pennsievedb:latest-seed
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    user: postgres
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h pennsievedb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  emptydb:
+    hostname: emptydb
+    image: pennsieve/postgres:9.6.5
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    user: postgres
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -h emptydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  localstack:
+    image: localstack/localstack:0.12.7
+    environment:
+      SERVICES: s3,ssm
+    expose:
+      - "4566"
