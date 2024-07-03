@@ -20,7 +20,7 @@ services:
 
   pennsievedb:
     hostname: pennsievedb
-    image: pennsieve/pennsievedb:V20240603122900-seed
+    image: pennsieve/pennsievedb:latest-seed
     platform: linux/amd64
     environment:
       POSTGRES_PASSWORD: password
@@ -37,7 +37,7 @@ services:
 
   emptydb:
     hostname: emptydb
-    image: pennsieve/postgres:latest
+    image: pennsieve/postgres:16.3
     platform: linux/amd64
     environment:
       POSTGRES_PASSWORD: password
