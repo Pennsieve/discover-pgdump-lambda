@@ -37,7 +37,7 @@ services:
 
   emptydb:
     hostname: emptydb
-    image: postgres:16.3
+    image: pennsieve/postgres:latest
     platform: linux/amd64
     environment:
       POSTGRES_PASSWORD: password
