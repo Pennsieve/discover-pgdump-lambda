@@ -56,7 +56,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 RUN . /opt/venv/bin/activate && \
     pip install --upgrade pip && \
-    pip install boto3==1.9.42
+    pip install boto3==1.34.140
 
 RUN mkdir lambda lambda/bin
 WORKDIR lambda
