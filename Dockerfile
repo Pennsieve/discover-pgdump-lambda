@@ -5,21 +5,21 @@ RUN apk update && apk add --no-cache \
     gcc \
     musl-dev \
     git \
-    python3 \
-    python3-dev \
+    python3=~3.12 \
+    python3-dev=~3.12 \
     py3-pip \
     zip \
     unzip
 
-RUN python3 -m venv /opt/venv
+RUN python3.12 -m venv /opt/venv
 
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN . /opt/venv/bin/activate && \
     pip install --upgrade pip && \
-    pip install boto3==1.9.42
+    pip install boto3==1.34.140
 
-RUN mkdir lambda lambda/bin
+RUN mkdir -p lambda/bin
 WORKDIR lambda
 
 # Copy required Postgres binaries and libraries into the Lambda directory
@@ -44,13 +44,13 @@ RUN apk update && apk add --no-cache \
     gcc \
     musl-dev \
     git \
-    python3 \
-    python3-dev \
+    python3=~3.12 \
+    python3-dev=~3.12 \
     py3-pip \
     zip \
     unzip
 
-RUN python3 -m venv /opt/venv
+RUN python3.12 -m venv /opt/venv
 
 ENV PATH="/opt/venv/bin:$PATH"
 
@@ -69,4 +69,4 @@ RUN unzip -o lambda.zip
 
 COPY test.py .
 
-CMD ["python3", "-m", "pytest", "-s", "test.py"]
+CMD ["python3.12", "-m", "pytest", "-s", "test.py"]
