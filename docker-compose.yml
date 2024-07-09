@@ -9,6 +9,7 @@ services:
       - localstack
       - emptydb
       - pennsievedb
+    platform: linux/amd64
     environment:
       ENVIRONMENT: local
       SERVICE_NAME: discover
@@ -20,6 +21,7 @@ services:
   pennsievedb:
     hostname: pennsievedb
     image: pennsieve/pennsievedb:latest-seed
+    platform: linux/amd64
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
@@ -35,7 +37,8 @@ services:
 
   emptydb:
     hostname: emptydb
-    image: pennsieve/postgres:9.6.5
+    image: pennsieve/postgres:16.3
+    platform: linux/amd64
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
@@ -51,6 +54,7 @@ services:
 
   localstack:
     image: localstack/localstack:0.12.7
+    platform: linux/amd64
     environment:
       SERVICES: s3,ssm
     expose:

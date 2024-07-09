@@ -3,8 +3,7 @@ import subprocess
 import time
 import pytest
 import boto3
-from sqlalchemy import create_engine
-from sqlalchemy.engine.url import URL
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import ProgrammingError
 from botocore.exceptions import BotoCoreError
 
@@ -69,12 +68,12 @@ def test_main():
         time.sleep(1)
 
     s3 = boto3.resource('s3', endpoint_url=S3_URL)
-    while not (s3_ready(s3)):
+    while not s3_ready(s3):
         print("Waiting for S3 container...")
         time.sleep(1)
 
     ssm = boto3.client('ssm', endpoint_url=SSM_URL)
-    while not (ssm_ready(ssm)):
+    while not ssm_ready(ssm):
         print("Waiting for SSM container...")
         time.sleep(1)
 
@@ -115,23 +114,21 @@ def test_main():
     })
 
     # Connect to the new database
-    engine = create_engine(URL(
-        drivername='postgresql',
-        database=PG_DATABASE,
-        username=PG_USER,
-        password=PG_PASSWORD,
-        host=PG_HOST_EMPTY,
-        port=PG_PORT))
+    engine = create_engine(
+        f'postgresql://{PG_USER}:{PG_PASSWORD}@{PG_HOST_EMPTY}:{PG_PORT}/{PG_DATABASE}'
+    )
 
     # Does the pennsievedb seed data from pennsieve-api/local-seed.sql look good?
     with engine.connect() as conn:
-        rows = conn.execute(f'SELECT * FROM "{ORGANIZATION_SCHEMA}".datasets;').fetchall()
+        rows = conn.execute(text(f'SELECT name, node_id FROM "{ORGANIZATION_SCHEMA}".datasets;')).fetchall()
         assert len(rows) == 1
-        assert rows[0]['name'] == 'Pennsieve Dataset'
-        assert rows[0]['node_id'] == 'N:dataset:c0f0db41-c7cb-4fb5-98b4-e90791f8a975'
+        assert rows[0][0] == 'Pennsieve Dataset'
+        assert rows[0][1] == 'N:dataset:c0f0db41-c7cb-4fb5-98b4-e90791f8a975'
 
+    with engine.connect() as conn:
         with pytest.raises(ProgrammingError):
-            conn.execute('SELECT * FROM "2".datasets;').fetchall()
+            conn.execute(text('SELECT * FROM "2".datasets;')).fetchall()
 
-        rows = conn.execute(f'SELECT * FROM "{ORGANIZATION_SCHEMA}".files;').fetchall()
+    with engine.connect() as conn:
+        rows = conn.execute(text(f'SELECT * FROM "{ORGANIZATION_SCHEMA}".files;')).fetchall()
         assert len(rows) == 0
