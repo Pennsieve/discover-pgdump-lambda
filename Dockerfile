@@ -1,8 +1,9 @@
-FROM postgres:16-alpine as build
+FROM --platform=linux/amd64 postgres:16-alpine as build
 
 RUN apk update && apk add --no-cache \
     libffi-dev \
     gcc \
+    openldap-dev \
     musl-dev \
     git \
     python3=~3.12 \
@@ -28,8 +29,13 @@ RUN cp \
     /usr/local/bin/psql \
     /usr/local/lib/libpq.so.5 \
     /usr/local/lib/libpq.so.5.16 \
+    /usr/lib/libldap.so.2 \
+    /lib/libc.musl-x86_64.so.1 \
+    /usr/lib/libedit.so.0 \
     ./bin
- 
+
+RUN chmod +x bin/libldap.so.2
+
 COPY requirements.txt .
 RUN pip install -r requirements.txt --target .
 RUN find . -name "*.pyc" -delete
