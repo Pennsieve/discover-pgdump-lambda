@@ -3,7 +3,7 @@ FROM --platform=linux/amd64 postgres:16-alpine as build
 RUN apk update && apk add --no-cache \
     libffi-dev \
     gcc \
-    openldap \
+    openldap-dev \
     musl-dev \
     git \
     python3=~3.12 \
