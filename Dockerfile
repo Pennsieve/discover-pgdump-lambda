@@ -4,7 +4,6 @@ RUN apk update && apk add --no-cache \
     libffi-dev \
     gcc \
     openldap \
-    musl \
     musl-dev \
     git \
     python3=~3.12 \
