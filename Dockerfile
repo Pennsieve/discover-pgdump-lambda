@@ -25,13 +25,15 @@ WORKDIR lambda
 
 # Copy required Postgres binaries and libraries into the Lambda directory
 RUN cp \
+    /lib/libc.musl-x86_64.so.1 \
+    /usr/lib/libedit.so.0 \
+    /usr/lib/liblber.so.2 \
+    /usr/lib/libldap.so.2 \
+    /usr/lib/libsasl2.so.3 \
     /usr/local/bin/pg_dump \
     /usr/local/bin/psql \
     /usr/local/lib/libpq.so.5 \
     /usr/local/lib/libpq.so.5.16 \
-    /usr/lib/libldap.so.2 \
-    /lib/libc.musl-x86_64.so.1 \
-    /usr/lib/libedit.so.0 \
     ./bin
 
 RUN chmod +x bin/libldap.so.2
