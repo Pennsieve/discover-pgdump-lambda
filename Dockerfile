@@ -32,6 +32,7 @@ RUN cp \
     /usr/local/lib/libpq.so.5.16 \
     /usr/lib/libldap.so.2 \
     /lib/libc.musl-x86_64.so.1 \
+    /usr/lib/libedit.so.0 \
     ./bin
 
 RUN chmod +x bin/libldap.so.2
