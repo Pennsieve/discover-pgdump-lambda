@@ -13,10 +13,10 @@ node('executor') {
     env.ENVIRONMENT = "local"
 
     try {
-        // stage("Run Tests") {
-        //     sh "make pull"
-        //     sh "make test"
-        // }
+        stage("Run Tests") {
+            sh "make pull"
+            sh "make test"
+        }
 
         if(isMain) {
             stage ('Build and Push') {

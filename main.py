@@ -66,6 +66,7 @@ def lambda_handler(event, context):
         pg_database = os.environ['POSTGRES_DATABASE']
         pg_port     = os.environ['POSTGRES_PORT']
         pg_host     = os.environ['POSTGRES_HOST']
+        pg_sslmode  = os.getenv('PGSSLMODE', 'require')
         s3_bucket   = os.environ['S3_BUCKET']
 
         log.info(f"POSTGRES_HOST: {pg_host}")
@@ -117,6 +118,7 @@ def lambda_handler(event, context):
             '--section', 'data',
         ], env={
             'PGPASSWORD': pg_password,
+            'PGSSLMODE': pg_sslmode,
             'LD_LIBRARY_PATH': PG_PATH
         },
            stdout=subprocess.PIPE,

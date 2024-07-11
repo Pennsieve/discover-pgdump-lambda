@@ -15,7 +15,7 @@ variable "service_name" {}
 variable "tier" {}
 
 variable "runtime" {
-  default = "python3.12"
+  default = "python3.11"
 }
 
 variable "bucket" {
