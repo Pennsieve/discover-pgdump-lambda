@@ -10,6 +10,7 @@ services:
       - emptydb
       - pennsievedb
     platform: linux/amd64
+    entrypoint: []
     environment:
       ENVIRONMENT: local
       SERVICE_NAME: discover
@@ -17,6 +18,7 @@ services:
       AWS_ACCESS_KEY_ID: xxxx
       AWS_SECRET_ACCESS_KEY: yyyy
       AWS_DEFAULT_REGION: 'us-east-1'
+      PGSSLMODE: 'allow'
 
   pennsievedb:
     hostname: pennsievedb

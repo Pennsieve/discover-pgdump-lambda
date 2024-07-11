@@ -1,72 +1,66 @@
-FROM --platform=linux/amd64 postgres:16-alpine as build
+FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.11 as build
 
-RUN apk update && apk add --no-cache \
-    libffi-dev \
+RUN yum -y update && yum -y install \
     gcc \
-    openldap-dev \
-    musl-dev \
-    git \
-    python3=~3.12 \
-    python3-dev=~3.12 \
-    py3-pip \
-    zip \
-    unzip
+    gzip.x86_64 \
+    libicu-devel \
+    make \
+    openssl-devel \
+    readline-devel \
+    tar.x86_64 \
+    unzip.x86_64 \
+    wget \
+    zip.x86_64 \
+    zlib-devel
 
-RUN python3.12 -m venv /opt/venv
+WORKDIR /tmp
+RUN wget https://ftp.postgresql.org/pub/source/v16.1/postgresql-16.1.tar.gz
+RUN tar -xvzf postgresql-16.1.tar.gz
 
-ENV PATH="/opt/venv/bin:$PATH"
+WORKDIR /tmp/postgresql-16.1
+RUN ./configure --bindir=/usr/bin --with-openssl
 
-RUN . /opt/venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install boto3==1.34.140
+RUN make -C src/bin install
+RUN make -C src/include install
+RUN make -C src/interfaces install
 
-RUN mkdir -p lambda/bin
-WORKDIR lambda
+RUN python3.11 -m venv /opt/venv
+RUN source /opt/venv/bin/activate && \
+    pip3.11 install --upgrade pip && \
+    pip3.11 install boto3==1.34.140
+
+RUN mkdir -p /lambda/bin
+WORKDIR /lambda
 
 # Copy required Postgres binaries and libraries into the Lambda directory
 RUN cp \
-    /lib/libc.musl-x86_64.so.1 \
-    /usr/lib/libedit.so.0 \
-    /usr/lib/liblber.so.2 \
-    /usr/lib/libldap.so.2 \
-    /usr/lib/libsasl2.so.3 \
-    /usr/local/bin/pg_dump \
-    /usr/local/bin/psql \
-    /usr/local/lib/libpq.so.5 \
-    /usr/local/lib/libpq.so.5.16 \
+    /usr/bin/pg_dump \
+    /usr/bin/psql \
+    /usr/local/pgsql/lib/libpq.so.5 \
+    /usr/local/pgsql/lib/libpq.so.5.16 \
     ./bin
 
-RUN chmod +x bin/libldap.so.2
-
 COPY requirements.txt .
-RUN pip install -r requirements.txt --target .
+RUN pip3.11 install -r requirements.txt --target .
 RUN find . -name "*.pyc" -delete
 
 COPY main.py .
 RUN zip -r lambda.zip .
 
-FROM postgres:16-alpine as test
+#####################################
 
-RUN apk update && apk add --no-cache \
-    libffi-dev \
-    gcc \
-    musl-dev \
-    git \
-    python3=~3.12 \
-    python3-dev=~3.12 \
-    py3-pip \
-    zip \
-    unzip
+FROM public.ecr.aws/lambda/python:3.11 as test
 
-RUN python3.12 -m venv /opt/venv
+RUN yum -y update && yum -y install \
+    unzip.x86_64
 
-ENV PATH="/opt/venv/bin:$PATH"
+RUN python3.11 -m venv /opt/venv
 
-RUN . /opt/venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install boto3==1.34.140
+RUN source /opt/venv/bin/activate && \
+    pip3.11 install --upgrade pip && \
+    pip3.11 install boto3==1.34.140
 
-RUN mkdir lambda lambda/bin
+RUN mkdir -p lambda/bin
 WORKDIR lambda
 
 COPY requirements-test.txt .
@@ -77,4 +71,4 @@ RUN unzip -o lambda.zip
 
 COPY test.py .
 
-CMD ["python3.12", "-m", "pytest", "-s", "test.py"]
+CMD ["python3.11", "-m", "pytest", "-s", "test.py"]
